@@ -4,7 +4,7 @@
 
   const GITHUB_USER = 'mzackasys';
   const GITHUB_REPO = 'ztv-panel';
-  const BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/modules/`;
+  const BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/ZTV-PANEL/modules/`;
   const cacheBust = `?t=${Date.now()}`;
 
   const moduleFiles = [

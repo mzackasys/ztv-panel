@@ -14,7 +14,7 @@
   'use strict';
 
   // Ganti USERNAME dan ztv-panel-suite sesuai akun repositori Anda
-  const MAIN_ENTRY_URL = 'https://raw.githubusercontent.com/mzackasys/ztv-panel/main/main.js?t=' + Date.now();
+	const MAIN_ENTRY_URL = 'https://raw.githubusercontent.com/mzackasys/ztv-panel/main/ZTV-PANEL/main.js?t=' + Date.now();
 
   const scriptTag = document.createElement('script');
   scriptTag.src = MAIN_ENTRY_URL;
