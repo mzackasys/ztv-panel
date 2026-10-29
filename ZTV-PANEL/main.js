@@ -14,6 +14,7 @@
     'show-1000.js',
     'hide-columns.js',
     'sticky-highlight.js'
+	'repeat-counting-spc.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -43,6 +44,7 @@
   let isHidePoolingEnabled = false;
   let isHidePendinganEnabled = false;
   let isStickyHighlightEnabled = false;
+  let isRepeatSPCEnabled = false;
 
   function updateBreCalButtonState() {
     const btnCalculate = document.getElementById('btnZtvBreCalCalculate');
@@ -247,6 +249,15 @@
         window.ZTV_MODULES.hideColumns.toggle('pendingan', isHidePendinganEnabled);
       }
     });
+	
+	// Buat row switch untuk Repeat Counting SPC
+    const switchRepeatSPCRow = createSwitchRow('switchRepeatSPC', 'Repeat Counting SPC', isRepeatSPCEnabled, (checked) => {
+      isRepeatSPCEnabled = checked;
+      if (window.ZTV_MODULES && window.ZTV_MODULES.repeatCountingSPC) {
+        if (isRepeatSPCEnabled) window.ZTV_MODULES.repeatCountingSPC.enable();
+        else window.ZTV_MODULES.repeatCountingSPC.disable();
+      }
+    });
 
     boxContainer.appendChild(titleDiv);
     boxContainer.appendChild(breCalRow);
@@ -254,6 +265,7 @@
     boxContainer.appendChild(switchShiftRow);
     boxContainer.appendChild(switchShow1000Row);
     boxContainer.appendChild(switchStickyHighlightRow);
+	boxContainer.appendChild(switchRepeatSPCRow);
     boxContainer.appendChild(switchHideTSRow);
     boxContainer.appendChild(switchHidePoolingRow);
     boxContainer.appendChild(switchHidePendinganRow);
