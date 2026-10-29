@@ -1,13 +1,11 @@
-// ZTV-PANEL/main.js
 (async function() {
   'use strict';
 
   const GITHUB_USER = 'mzackasys';
   const GITHUB_REPO = 'ztv-panel';
-  const BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/ZTV-PANEL/modules/`;
-  const cacheBust = `?t=${Date.now()}`;
+  const BASE_URL = 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/main/ZTV-PANEL/modules/';
+  const cacheBust = '?t=' + Date.now();
 
-  // Daftar seluruh modul (pastikan koma di tiap baris tidak ada yang terlewat)
   const moduleFiles = [
     'brecal.js',
     'reset-dilution.js',
@@ -21,11 +19,32 @@
   async function loadExternalModule(url) {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status} (${response.statusText}) saat memuat: ${url}`);
+      throw new Error('HTTP ' + response.status + ' (' + response.statusText + ') saat memuat: ' + url);
     }
-    const code = await response.text();
-    const executeModule = new Function(code);
-    executeModule();
+    const rawText = await response.text();
+    const cleanCode = rawText.replace(/^\uFEFF/, '');
+    
+    return new Promise((resolve, reject) => {
+      try {
+        const blob = new Blob([cleanCode], { type: 'text/javascript' });
+        const blobUrl = URL.createObjectURL(blob);
+        const script = document.createElement('script');
+        script.src = blobUrl;
+        script.onload = () => {
+          URL.revokeObjectURL(blobUrl);
+          script.remove();
+          resolve();
+        };
+        script.onerror = () => {
+          URL.revokeObjectURL(blobUrl);
+          script.remove();
+          reject(new Error('Gagal mengeksekusi script modul: ' + url));
+        };
+        (document.head || document.documentElement).appendChild(script);
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
   try {
@@ -36,7 +55,6 @@
     return;
   }
 
-  // State seluruh fitur
   let isResetEnabled = false;
   let isShiftEnabled = false;
   let isShow1000Enabled = false;
@@ -92,10 +110,7 @@
     const zakiToggleLink = document.createElement('a');
     zakiToggleLink.className = 'menu-link menu-toggle ztv-folder-toggle';
     zakiToggleLink.href = 'javascript:void(0);';
-    zakiToggleLink.innerHTML = `
-      <i class="menu-icon tf-icons ti ti-flame" style="color: #ff5722; font-size: 1.25rem;"></i>
-      <div data-i18n="Zaki">Zaki&nbsp;</div>
-    `;
+    zakiToggleLink.innerHTML = '<i class="menu-icon tf-icons ti ti-flame" style="color: #ff5722; font-size: 1.25rem;"></i><div data-i18n="Zaki">Zaki&nbsp;</div>';
 
     const zakiSubmenuUl = document.createElement('ul');
     zakiSubmenuUl.className = 'menu-sub ini-child';
@@ -121,31 +136,10 @@
 
     const boxContainer = document.createElement('div');
     boxContainer.id = 'ztvCustomPanelContainer';
-    boxContainer.style.cssText = `
-      background-color: #d1e7dd;
-      border: 1px solid #a3cfbb;
-      border-radius: 0.5rem;
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.45rem;
-      width: 100%;
-    `;
+    boxContainer.style.cssText = 'background-color: #d1e7dd; border: 1px solid #a3cfbb; border-radius: 0.5rem; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.45rem; width: 100%;';
 
     const titleDiv = document.createElement('div');
-    titleDiv.style.cssText = `
-      color: #0f5132;
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      width: 100%;
-      margin-bottom: 0.2rem;
-    `;
+    titleDiv.style.cssText = 'color: #0f5132; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; margin-bottom: 0.2rem;';
     titleDiv.innerHTML = '<span>ZTV PANEL 🔥</span>';
 
     function createSwitchRow(id, labelText, isChecked, onChangeCallback) {
@@ -176,7 +170,6 @@
       return switchDiv;
     }
 
-    // Tombol BreCal
     const breCalRow = document.createElement('div');
     breCalRow.className = 'd-flex align-items-center justify-content-between';
     breCalRow.style.cssText = 'padding: 0.35rem 0.5rem; background: rgba(255,255,255,0.6); border-radius: 0.35rem; border: 1px solid rgba(15, 81, 50, 0.2);';
@@ -199,7 +192,6 @@
     breCalRow.appendChild(breCalLabel);
     breCalRow.appendChild(btnCalculate);
 
-    // Switch List
     const switchResetRow = createSwitchRow('switchResetDill', 'Reset Dilution', isResetEnabled, (checked) => {
       isResetEnabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.resetDilution) {

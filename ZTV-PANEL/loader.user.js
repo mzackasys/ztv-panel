@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zaki - ZTV Universal Cloud Loader
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Universal Loader untuk ZTV Panel Modular dari GitHub
 // @author       Zaki
 // @match        https://equality.kalbenutritionals.com/*
@@ -28,12 +28,21 @@
     onload: function(response) {
       if (response.status === 200 && response.responseText.trim().length > 0) {
         try {
-          // Eksekusi kode main.js langsung di environment halaman
-          const runScript = new Function(response.responseText);
-          runScript();
-          console.log('%c[ZTV Loader] ✅ main.js berhasil dieksekusi!', 'color: #198754; font-weight: bold;');
+          // Bersihkan BOM jika ada
+          const cleanCode = response.responseText.replace(/^\uFEFF/, '');
+          
+          const scriptBlob = new Blob([cleanCode], { type: 'text/javascript' });
+          const blobUrl = URL.createObjectURL(scriptBlob);
+          const scriptTag = document.createElement('script');
+          scriptTag.src = blobUrl;
+          scriptTag.onload = () => {
+            URL.revokeObjectURL(blobUrl);
+            scriptTag.remove();
+            console.log('%c[ZTV Loader] ✅ main.js berhasil dieksekusi via Blob!', 'color: #198754; font-weight: bold;');
+          };
+          (document.head || document.documentElement).appendChild(scriptTag);
         } catch (err) {
-          console.error('[ZTV Loader] ❌ Error saat mengeksekusi main.js:', err);
+          console.error('[ZTV Loader] ❌ Error saat menyuntikkan main.js:', err);
         }
       } else {
         console.error('[ZTV Loader] ❌ Gagal mengunduh main.js. Status Code:', response.status);
