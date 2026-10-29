@@ -13,7 +13,7 @@
     'batas-shift.js',
     'show-1000.js',
     'hide-columns.js',
-    'sticky-highlight.js'
+    'sticky-highlight.js',
 	'repeat-counting-spc.js'
   ];
 
