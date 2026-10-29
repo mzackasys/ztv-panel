@@ -1,10 +1,11 @@
+// main.js
 (async function() {
   'use strict';
 
   const GITHUB_USER = 'mzackasys';
   const GITHUB_REPO = 'ztv-panel';
-  const BASE_URL = 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/main/ZTV-PANEL/modules/';
-  const cacheBust = '?t=' + Date.now();
+  const BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/ZTV-PANEL/modules/`;
+  const cacheBust = `?t=${Date.now()}`;
 
   const moduleFiles = [
     'brecal.js',
@@ -12,23 +13,19 @@
     'batas-shift.js',
     'show-1000.js',
     'hide-columns.js',
-    'sticky-highlight.js',
-    'repeat-counting-spc.js'
+    'sticky-highlight.js'
   ];
 
-	async function loadExternalModule(url) {
+// GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
+  async function loadExternalModule(url) {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status} (${response.statusText}) saat memuat: ${url}`);
     }
-    const rawText = await response.text();
-    // Sanitasi karakter liar
-    const cleanCode = rawText.replace(/^\uFEFF/, '').replace(/\u00A0/g, ' ');
-
-    const script = document.createElement('script');
-    script.textContent = cleanCode;
-    (document.head || document.documentElement).appendChild(script);
-    script.remove();
+    const code = await response.text();
+    // Eksekusi kode modul secara langsung di scope global/window
+    const executeModule = new Function(code);
+    executeModule();
   }
 
   try {
@@ -46,7 +43,6 @@
   let isHidePoolingEnabled = false;
   let isHidePendinganEnabled = false;
   let isStickyHighlightEnabled = false;
-  let isRepeatSPCEnabled = false;
 
   function updateBreCalButtonState() {
     const btnCalculate = document.getElementById('btnZtvBreCalCalculate');
@@ -94,7 +90,10 @@
     const zakiToggleLink = document.createElement('a');
     zakiToggleLink.className = 'menu-link menu-toggle ztv-folder-toggle';
     zakiToggleLink.href = 'javascript:void(0);';
-    zakiToggleLink.innerHTML = '<i class="menu-icon tf-icons ti ti-flame" style="color: #ff5722; font-size: 1.25rem;"></i><div data-i18n="Zaki">Zaki&nbsp;</div>';
+    zakiToggleLink.innerHTML = `
+      <i class="menu-icon tf-icons ti ti-flame" style="color: #ff5722; font-size: 1.25rem;"></i>
+      <div data-i18n="Zaki">Zaki&nbsp;</div>
+    `;
 
     const zakiSubmenuUl = document.createElement('ul');
     zakiSubmenuUl.className = 'menu-sub ini-child';
@@ -120,10 +119,31 @@
 
     const boxContainer = document.createElement('div');
     boxContainer.id = 'ztvCustomPanelContainer';
-    boxContainer.style.cssText = 'background-color: #d1e7dd; border: 1px solid #a3cfbb; border-radius: 0.5rem; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.45rem; width: 100%;';
+    boxContainer.style.cssText = `
+      background-color: #d1e7dd;
+      border: 1px solid #a3cfbb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      width: 100%;
+    `;
 
     const titleDiv = document.createElement('div');
-    titleDiv.style.cssText = 'color: #0f5132; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; margin-bottom: 0.2rem;';
+    titleDiv.style.cssText = `
+      color: #0f5132;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      margin-bottom: 0.2rem;
+    `;
     titleDiv.innerHTML = '<span>ZTV PANEL 🔥</span>';
 
     function createSwitchRow(id, labelText, isChecked, onChangeCallback) {
@@ -192,14 +212,6 @@
       }
     });
 
-    const switchRepeatSPCRow = createSwitchRow('switchRepeatSPC', 'Repeat Counting SPC', isRepeatSPCEnabled, (checked) => {
-      isRepeatSPCEnabled = checked;
-      if (window.ZTV_MODULES && window.ZTV_MODULES.repeatCountingSPC) {
-        if (isRepeatSPCEnabled) window.ZTV_MODULES.repeatCountingSPC.enable();
-        else window.ZTV_MODULES.repeatCountingSPC.disable();
-      }
-    });
-
     const switchShow1000Row = createSwitchRow('switchShow1000', 'Show 1000 data', isShow1000Enabled, (checked) => {
       isShow1000Enabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.show1000) {
@@ -240,7 +252,6 @@
     boxContainer.appendChild(breCalRow);
     boxContainer.appendChild(switchResetRow);
     boxContainer.appendChild(switchShiftRow);
-    boxContainer.appendChild(switchRepeatSPCRow);
     boxContainer.appendChild(switchShow1000Row);
     boxContainer.appendChild(switchStickyHighlightRow);
     boxContainer.appendChild(switchHideTSRow);
