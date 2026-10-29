@@ -16,35 +16,19 @@
     'repeat-counting-spc.js'
   ];
 
-  async function loadExternalModule(url) {
+	async function loadExternalModule(url) {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error('HTTP ' + response.status + ' (' + response.statusText + ') saat memuat: ' + url);
+      throw new Error(`HTTP ${response.status} (${response.statusText}) saat memuat: ${url}`);
     }
     const rawText = await response.text();
-    const cleanCode = rawText.replace(/^\uFEFF/, '');
-    
-    return new Promise((resolve, reject) => {
-      try {
-        const blob = new Blob([cleanCode], { type: 'text/javascript' });
-        const blobUrl = URL.createObjectURL(blob);
-        const script = document.createElement('script');
-        script.src = blobUrl;
-        script.onload = () => {
-          URL.revokeObjectURL(blobUrl);
-          script.remove();
-          resolve();
-        };
-        script.onerror = () => {
-          URL.revokeObjectURL(blobUrl);
-          script.remove();
-          reject(new Error('Gagal mengeksekusi script modul: ' + url));
-        };
-        (document.head || document.documentElement).appendChild(script);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    // Sanitasi karakter liar
+    const cleanCode = rawText.replace(/^\uFEFF/, '').replace(/\u00A0/g, ' ');
+
+    const script = document.createElement('script');
+    script.textContent = cleanCode;
+    (document.head || document.documentElement).appendChild(script);
+    script.remove();
   }
 
   try {
