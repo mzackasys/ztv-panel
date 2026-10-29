@@ -16,14 +16,16 @@
     'sticky-highlight.js'
   ];
 
-  function loadExternalModule(url) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = url;
-      script.onload = resolve;
-      script.onerror = () => reject(new Error(`Gagal memuat modul: ${url}`));
-      document.head.appendChild(script);
-    });
+// GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
+  async function loadExternalModule(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} (${response.statusText}) saat memuat: ${url}`);
+    }
+    const code = await response.text();
+    // Eksekusi kode modul secara langsung di scope global/window
+    const executeModule = new Function(code);
+    executeModule();
   }
 
   try {
