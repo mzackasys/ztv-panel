@@ -1,4 +1,4 @@
-// main.js
+// ZTV-PANEL/main.js
 (async function() {
   'use strict';
 
@@ -7,6 +7,7 @@
   const BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/ZTV-PANEL/modules/`;
   const cacheBust = `?t=${Date.now()}`;
 
+  // Daftar seluruh modul (pastikan koma di tiap baris tidak ada yang terlewat)
   const moduleFiles = [
     'brecal.js',
     'reset-dilution.js',
@@ -14,17 +15,15 @@
     'show-1000.js',
     'hide-columns.js',
     'sticky-highlight.js',
-	'repeat-counting-spc.js'
+    'repeat-counting-spc.js'
   ];
 
-// GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
   async function loadExternalModule(url) {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status} (${response.statusText}) saat memuat: ${url}`);
     }
     const code = await response.text();
-    // Eksekusi kode modul secara langsung di scope global/window
     const executeModule = new Function(code);
     executeModule();
   }
@@ -37,6 +36,7 @@
     return;
   }
 
+  // State seluruh fitur
   let isResetEnabled = false;
   let isShiftEnabled = false;
   let isShow1000Enabled = false;
@@ -176,6 +176,7 @@
       return switchDiv;
     }
 
+    // Tombol BreCal
     const breCalRow = document.createElement('div');
     breCalRow.className = 'd-flex align-items-center justify-content-between';
     breCalRow.style.cssText = 'padding: 0.35rem 0.5rem; background: rgba(255,255,255,0.6); border-radius: 0.35rem; border: 1px solid rgba(15, 81, 50, 0.2);';
@@ -198,6 +199,7 @@
     breCalRow.appendChild(breCalLabel);
     breCalRow.appendChild(btnCalculate);
 
+    // Switch List
     const switchResetRow = createSwitchRow('switchResetDill', 'Reset Dilution', isResetEnabled, (checked) => {
       isResetEnabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.resetDilution) {
@@ -211,6 +213,14 @@
       if (window.ZTV_MODULES && window.ZTV_MODULES.batasShift) {
         if (isShiftEnabled) window.ZTV_MODULES.batasShift.enable(() => isShiftEnabled);
         else window.ZTV_MODULES.batasShift.disable();
+      }
+    });
+
+    const switchRepeatSPCRow = createSwitchRow('switchRepeatSPC', 'Repeat Counting SPC', isRepeatSPCEnabled, (checked) => {
+      isRepeatSPCEnabled = checked;
+      if (window.ZTV_MODULES && window.ZTV_MODULES.repeatCountingSPC) {
+        if (isRepeatSPCEnabled) window.ZTV_MODULES.repeatCountingSPC.enable();
+        else window.ZTV_MODULES.repeatCountingSPC.disable();
       }
     });
 
@@ -249,23 +259,14 @@
         window.ZTV_MODULES.hideColumns.toggle('pendingan', isHidePendinganEnabled);
       }
     });
-	
-	// Buat row switch untuk Repeat Counting SPC
-    const switchRepeatSPCRow = createSwitchRow('switchRepeatSPC', 'Repeat Counting SPC', isRepeatSPCEnabled, (checked) => {
-      isRepeatSPCEnabled = checked;
-      if (window.ZTV_MODULES && window.ZTV_MODULES.repeatCountingSPC) {
-        if (isRepeatSPCEnabled) window.ZTV_MODULES.repeatCountingSPC.enable();
-        else window.ZTV_MODULES.repeatCountingSPC.disable();
-      }
-    });
 
     boxContainer.appendChild(titleDiv);
     boxContainer.appendChild(breCalRow);
     boxContainer.appendChild(switchResetRow);
     boxContainer.appendChild(switchShiftRow);
+    boxContainer.appendChild(switchRepeatSPCRow);
     boxContainer.appendChild(switchShow1000Row);
     boxContainer.appendChild(switchStickyHighlightRow);
-	boxContainer.appendChild(switchRepeatSPCRow);
     boxContainer.appendChild(switchHideTSRow);
     boxContainer.appendChild(switchHidePoolingRow);
     boxContainer.appendChild(switchHidePendinganRow);
