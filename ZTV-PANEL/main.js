@@ -16,7 +16,8 @@
     'sticky-highlight.js',
     'grouping-salmonella.js',
     'repeat-counting-spc.js',
-    'button-approve.js'
+    'button-approve.js',
+    'lhu-manual.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -311,6 +312,18 @@
       }
     });
 
+    const btnLhuManual = document.createElement('button');
+    btnLhuManual.type = 'button';
+    btnLhuManual.id = 'btnZtvLhuManual';
+    btnLhuManual.className = 'btn btn-sm btn-success fw-bold shadow-sm w-100';
+    btnLhuManual.style.cssText = 'font-size: 0.75rem; padding: 0.3rem 0.55rem; margin-top: 0.2rem;';
+    btnLhuManual.innerHTML = '<i class="fa fa-external-link me-1"></i>Go to LHU Manual';
+    btnLhuManual.addEventListener('click', () => {
+      if (window.ZTV_MODULES && window.ZTV_MODULES.lhuManual) {
+        window.ZTV_MODULES.lhuManual.open();
+      }
+    });
+
     boxContainer.appendChild(titleDiv);
     boxContainer.appendChild(breCalRow);
     boxContainer.appendChild(salmoRow);
@@ -323,6 +336,7 @@
     boxContainer.appendChild(switchHideTSRow);
     boxContainer.appendChild(switchHidePoolingRow);
     boxContainer.appendChild(switchHidePendinganRow);
+    boxContainer.appendChild(btnLhuManual);
 
     zakiSubmenuUl.appendChild(boxContainer);
     zakiFolderLi.appendChild(zakiToggleLink);
