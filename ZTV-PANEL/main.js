@@ -14,7 +14,8 @@
     'show-1000.js',
     'hide-columns.js',
     'sticky-highlight.js',
-    'grouping-salmonella.js'
+    'grouping-salmonella.js',
+    'repeat-counting-spc.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -44,6 +45,7 @@
   let isHidePoolingEnabled = false;
   let isHidePendinganEnabled = false;
   let isStickyHighlightEnabled = false;
+  let isRepeatSpcEnabled = false;
 
   function updateBreCalButtonState() {
     const prepTabBtn = document.getElementById('prep-analysis-tab');
@@ -252,6 +254,14 @@
       }
     });
 
+    const switchRepeatSpcRow = createSwitchRow('switchRepeatSpc', 'Repeat Counting SPC', isRepeatSpcEnabled, (checked) => {
+      isRepeatSpcEnabled = checked;
+      if (window.ZTV_MODULES && window.ZTV_MODULES.repeatCountingSpc) {
+        if (isRepeatSpcEnabled) window.ZTV_MODULES.repeatCountingSpc.enable();
+        else window.ZTV_MODULES.repeatCountingSpc.disable();
+      }
+    });
+
     const switchHideTSRow = createSwitchRow('switchHideTS', 'Prep : Hide T.S', isHideTSEnabled, (checked) => {
       isHideTSEnabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.hideColumns) {
@@ -280,6 +290,7 @@
     boxContainer.appendChild(switchShiftRow);
     boxContainer.appendChild(switchShow1000Row);
     boxContainer.appendChild(switchStickyHighlightRow);
+    boxContainer.appendChild(switchRepeatSpcRow);
     boxContainer.appendChild(switchHideTSRow);
     boxContainer.appendChild(switchHidePoolingRow);
     boxContainer.appendChild(switchHidePendinganRow);

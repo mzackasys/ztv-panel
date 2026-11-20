@@ -1,6 +1,16 @@
+// modules/repeat-counting-spc.js
+window.ZTV_MODULES = window.ZTV_MODULES || {};
+window.ZTV_MODULES.repeatCountingSpc = (() => {
   // ==========================================
   // FITUR 4: LOGIC REPEAT COUNTING SPC (FALLBACK SYSTEM)
   // ==========================================
+  const SPC_PARAMS = ['Standard plate count', 'SPC'];
+
+  let isRepeatSPCEnabled = false;
+  let isFallbackRunning = false;
+  // Parameter SPC yang sedang dipakai; ikut berubah saat user membuka modal parameter SPC
+  let currentSpcParameter = 'Standard plate count';
+
   function cleanupModalBlockers() {
     setTimeout(() => {
       const openModals = document.querySelectorAll('.modal.show, .modal[style*="display: block"]');
@@ -139,7 +149,7 @@
     }, 100);
   }
 
-  // Workflow Global Keyboard & Click Event
+  // Workflow Global Keyboard & Click Event (dipasang sekali, dikontrol oleh isRepeatSPCEnabled)
   if (!window._ztvModalWorkflowGlobalInit) {
     window._ztvModalWorkflowGlobalInit = true;
 
@@ -187,10 +197,17 @@
 
       if (!isRepeatSPCEnabled) return;
 
+      // Ingat parameter SPC yang dibuka user secara manual
+      const btnAssist = e.target.closest('button.btn-parameter-assist');
+      if (btnAssist && !isFallbackRunning) {
+        const param = btnAssist.getAttribute('data-parameter');
+        if (SPC_PARAMS.includes(param)) currentSpcParameter = param;
+      }
+
       const targetSwal = e.target.closest('button.swal2-confirm');
       if (targetSwal) {
         const swalContainer = targetSwal.closest('.swal2-container');
-        const isSuccess = swalContainer?.querySelector('.swal2-success') !== null;
+        const isSuccess = !!(swalContainer && swalContainer.querySelector('.swal2-success'));
 
         if (isSuccess) {
           console.log('ZTV: Submit sukses terkonfirmasi, membuka modal SPC selanjutnya.');
@@ -199,3 +216,17 @@
       }
     });
   }
+
+  function enable() {
+    isRepeatSPCEnabled = true;
+    console.log('ZTV: Repeat Counting SPC aktif.');
+  }
+
+  function disable() {
+    isRepeatSPCEnabled = false;
+    isFallbackRunning = false;
+    console.log('ZTV: Repeat Counting SPC nonaktif.');
+  }
+
+  return { enable, disable };
+})();
