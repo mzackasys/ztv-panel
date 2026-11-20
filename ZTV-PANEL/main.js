@@ -17,7 +17,8 @@
     'grouping-salmonella.js',
     'repeat-counting-spc.js',
     'button-approve.js',
-    'lhu-manual.js'
+    'lhu-manual.js',
+    'dillution-assistance.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -65,6 +66,29 @@
       row.title = isAvailable ? '' : 'Hanya aktif di halaman Result Verification';
       const label = row.querySelector('label');
       if (label) label.style.cursor = isAvailable ? 'pointer' : 'not-allowed';
+    }
+  }
+
+  // Tombol Dillution Assistance hanya aktif di tab Input Result; teksnya Show / Hide
+  function updateDillutionButtonState() {
+    const btn = document.getElementById('btnZtvDillShow');
+    const mod = window.ZTV_MODULES && window.ZTV_MODULES.dillutionAssistance;
+    if (!btn || !mod) return;
+
+    const isAvailable = mod.isAvailable();
+    const label = mod.isShown() ? 'Hide' : 'Show';
+    if (btn.innerText !== label) btn.innerText = label;
+
+    if (isAvailable) {
+      btn.disabled = false;
+      btn.className = 'btn btn-sm btn-success fw-bold shadow-sm';
+      btn.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: pointer;';
+      btn.title = '';
+    } else {
+      btn.disabled = true;
+      btn.className = 'btn btn-sm btn-secondary fw-bold';
+      btn.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: not-allowed; opacity: 0.65;';
+      btn.title = 'Hanya aktif di tab Input Result';
     }
   }
 
@@ -244,6 +268,30 @@
     salmoRow.appendChild(salmoLabel);
     salmoRow.appendChild(btnSalmoGenerate);
 
+    const dillRow = document.createElement('div');
+    dillRow.className = 'd-flex align-items-center justify-content-between';
+    dillRow.style.cssText = breCalRow.style.cssText;
+
+    const dillLabel = document.createElement('span');
+    dillLabel.className = 'fw-bold text-dark';
+    dillLabel.style.cssText = 'font-size: 0.75rem; user-select: none; white-space: nowrap;';
+    dillLabel.innerHTML = '<i class="fa fa-flask text-success me-1"></i>Dillution Assistance';
+
+    const btnDillShow = document.createElement('button');
+    btnDillShow.type = 'button';
+    btnDillShow.id = 'btnZtvDillShow';
+    btnDillShow.innerText = 'Show';
+    btnDillShow.addEventListener('click', () => {
+      const mod = window.ZTV_MODULES && window.ZTV_MODULES.dillutionAssistance;
+      if (!mod) return;
+      if (mod.isShown()) mod.hide();
+      else mod.show();
+      updateDillutionButtonState();
+    });
+
+    dillRow.appendChild(dillLabel);
+    dillRow.appendChild(btnDillShow);
+
     const lhuRow = document.createElement('div');
     lhuRow.className = 'd-flex align-items-center justify-content-between';
     lhuRow.style.cssText = breCalRow.style.cssText;
@@ -251,7 +299,7 @@
     const lhuLabel = document.createElement('span');
     lhuLabel.className = 'fw-bold text-dark';
     lhuLabel.style.cssText = 'font-size: 0.75rem; user-select: none; white-space: nowrap;';
-    lhuLabel.innerHTML = '<i class="fa fa-file text-success me-1"></i>LHU Manual';
+    lhuLabel.innerHTML = '<i class="fa fa-file-text text-success me-1"></i>LHU Manual';
 
     // Selalu aktif di semua halaman (tidak ikut aturan tab Prep Analysis)
     const btnLhuManual = document.createElement('button');
@@ -340,6 +388,7 @@
     boxContainer.appendChild(titleDiv);
     boxContainer.appendChild(breCalRow);
     boxContainer.appendChild(salmoRow);
+    boxContainer.appendChild(dillRow);
     boxContainer.appendChild(lhuRow);
     boxContainer.appendChild(switchResetRow);
     boxContainer.appendChild(switchShiftRow);
@@ -358,16 +407,19 @@
     lisaFolderLi.insertAdjacentElement('afterend', zakiFolderLi);
     updateBreCalButtonState();
     updateButtonApproveSwitchState();
+    updateDillutionButtonState();
   }
 
   document.addEventListener('shown.bs.tab', () => {
     updateBreCalButtonState();
+    updateDillutionButtonState();
   });
 
   setInterval(() => {
     injectZTVPanel();
     updateBreCalButtonState();
     updateButtonApproveSwitchState();
+    updateDillutionButtonState();
 
     if (window.ZTV_MODULES) {
       if (isResetEnabled && window.ZTV_MODULES.resetDilution) {
@@ -385,6 +437,9 @@
       if (isButtonApproveEnabled && window.ZTV_MODULES.buttonApprove) {
         window.ZTV_MODULES.buttonApprove.enable();
       }
+      if (window.ZTV_MODULES.dillutionAssistance) {
+        window.ZTV_MODULES.dillutionAssistance.refresh();
+      }
     }
   }, 500);
 
@@ -392,6 +447,7 @@
     injectZTVPanel();
     updateBreCalButtonState();
     updateButtonApproveSwitchState();
+    updateDillutionButtonState();
   });
 
   if (document.body) {
