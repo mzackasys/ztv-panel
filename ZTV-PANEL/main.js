@@ -244,6 +244,31 @@
     salmoRow.appendChild(salmoLabel);
     salmoRow.appendChild(btnSalmoGenerate);
 
+    const lhuRow = document.createElement('div');
+    lhuRow.className = 'd-flex align-items-center justify-content-between';
+    lhuRow.style.cssText = breCalRow.style.cssText;
+
+    const lhuLabel = document.createElement('span');
+    lhuLabel.className = 'fw-bold text-dark';
+    lhuLabel.style.cssText = 'font-size: 0.75rem; user-select: none; white-space: nowrap;';
+    lhuLabel.innerHTML = '<i class="fa fa-file-text text-success me-1"></i>LHU Manual';
+
+    // Selalu aktif di semua halaman (tidak ikut aturan tab Prep Analysis)
+    const btnLhuManual = document.createElement('button');
+    btnLhuManual.type = 'button';
+    btnLhuManual.id = 'btnZtvLhuManual';
+    btnLhuManual.className = 'btn btn-sm btn-success fw-bold shadow-sm';
+    btnLhuManual.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: pointer;';
+    btnLhuManual.innerText = 'Go';
+    btnLhuManual.addEventListener('click', () => {
+      if (window.ZTV_MODULES && window.ZTV_MODULES.lhuManual) {
+        window.ZTV_MODULES.lhuManual.open();
+      }
+    });
+
+    lhuRow.appendChild(lhuLabel);
+    lhuRow.appendChild(btnLhuManual);
+
     const switchResetRow = createSwitchRow('switchResetDill', 'Reset Dilution', isResetEnabled, (checked) => {
       isResetEnabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.resetDilution) {
@@ -312,21 +337,10 @@
       }
     });
 
-    const btnLhuManual = document.createElement('button');
-    btnLhuManual.type = 'button';
-    btnLhuManual.id = 'btnZtvLhuManual';
-    btnLhuManual.className = 'btn btn-sm btn-success fw-bold shadow-sm w-100';
-    btnLhuManual.style.cssText = 'font-size: 0.75rem; padding: 0.3rem 0.55rem; margin-top: 0.2rem;';
-    btnLhuManual.innerHTML = '<i class="fa fa-external-link me-1"></i>Go to LHU Manual';
-    btnLhuManual.addEventListener('click', () => {
-      if (window.ZTV_MODULES && window.ZTV_MODULES.lhuManual) {
-        window.ZTV_MODULES.lhuManual.open();
-      }
-    });
-
     boxContainer.appendChild(titleDiv);
     boxContainer.appendChild(breCalRow);
     boxContainer.appendChild(salmoRow);
+    boxContainer.appendChild(lhuRow);
     boxContainer.appendChild(switchResetRow);
     boxContainer.appendChild(switchShiftRow);
     boxContainer.appendChild(switchShow1000Row);
@@ -336,7 +350,6 @@
     boxContainer.appendChild(switchHideTSRow);
     boxContainer.appendChild(switchHidePoolingRow);
     boxContainer.appendChild(switchHidePendinganRow);
-    boxContainer.appendChild(btnLhuManual);
 
     zakiSubmenuUl.appendChild(boxContainer);
     zakiFolderLi.appendChild(zakiToggleLink);
