@@ -206,7 +206,7 @@
     const salmoLabel = document.createElement('span');
     salmoLabel.className = 'fw-bold text-dark';
     salmoLabel.style.cssText = 'font-size: 0.75rem; user-select: none; white-space: nowrap;';
-    salmoLabel.innerHTML = '<i class="fa fa-object-group text-success me-1"></i>Grouping Salmonella';
+    salmoLabel.innerHTML = '<i class="fa fa-object-group text-success me-1"></i>Grouping Sal';
 
     const btnSalmoGenerate = document.createElement('button');
     btnSalmoGenerate.type = 'button';
