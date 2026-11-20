@@ -13,7 +13,8 @@
     'batas-shift.js',
     'show-1000.js',
     'hide-columns.js',
-    'sticky-highlight.js'
+    'sticky-highlight.js',
+    'grouping-salmonella.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -45,24 +46,26 @@
   let isStickyHighlightEnabled = false;
 
   function updateBreCalButtonState() {
-    const btnCalculate = document.getElementById('btnZtvBreCalCalculate');
-    if (!btnCalculate) return;
-
     const prepTabBtn = document.getElementById('prep-analysis-tab');
     const isPrepActive = prepTabBtn && (
       prepTabBtn.classList.contains('active') ||
       prepTabBtn.getAttribute('aria-selected') === 'true'
     );
 
-    if (isPrepActive) {
-      btnCalculate.disabled = false;
-      btnCalculate.className = 'btn btn-sm btn-success fw-bold shadow-sm';
-      btnCalculate.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: pointer;';
-    } else {
-      btnCalculate.disabled = true;
-      btnCalculate.className = 'btn btn-sm btn-secondary fw-bold';
-      btnCalculate.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: not-allowed; opacity: 0.65;';
-    }
+    // Tombol yang hanya aktif saat tab Prep Analysis terbuka
+    ['btnZtvBreCalCalculate', 'btnZtvSalmoGenerate'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (isPrepActive) {
+        btn.disabled = false;
+        btn.className = 'btn btn-sm btn-success fw-bold shadow-sm';
+        btn.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: pointer;';
+      } else {
+        btn.disabled = true;
+        btn.className = 'btn btn-sm btn-secondary fw-bold';
+        btn.style.cssText = 'font-size: 0.75rem; padding: 0.2rem 0.55rem; cursor: not-allowed; opacity: 0.65;';
+      }
+    });
   }
 
   function injectZTVPanel() {
@@ -196,6 +199,28 @@
     breCalRow.appendChild(breCalLabel);
     breCalRow.appendChild(btnCalculate);
 
+    const salmoRow = document.createElement('div');
+    salmoRow.className = 'd-flex align-items-center justify-content-between';
+    salmoRow.style.cssText = breCalRow.style.cssText;
+
+    const salmoLabel = document.createElement('span');
+    salmoLabel.className = 'fw-bold text-dark';
+    salmoLabel.style.cssText = 'font-size: 0.75rem; user-select: none; white-space: nowrap;';
+    salmoLabel.innerHTML = '<i class="fa fa-object-group text-success me-1"></i>Grouping Salmonella';
+
+    const btnSalmoGenerate = document.createElement('button');
+    btnSalmoGenerate.type = 'button';
+    btnSalmoGenerate.id = 'btnZtvSalmoGenerate';
+    btnSalmoGenerate.innerText = 'Generate';
+    btnSalmoGenerate.addEventListener('click', () => {
+      if (window.ZTV_MODULES && window.ZTV_MODULES.groupingSalmonella) {
+        window.ZTV_MODULES.groupingSalmonella.showModal();
+      }
+    });
+
+    salmoRow.appendChild(salmoLabel);
+    salmoRow.appendChild(btnSalmoGenerate);
+
     const switchResetRow = createSwitchRow('switchResetDill', 'Reset Dilution', isResetEnabled, (checked) => {
       isResetEnabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.resetDilution) {
@@ -250,6 +275,7 @@
 
     boxContainer.appendChild(titleDiv);
     boxContainer.appendChild(breCalRow);
+    boxContainer.appendChild(salmoRow);
     boxContainer.appendChild(switchResetRow);
     boxContainer.appendChild(switchShiftRow);
     boxContainer.appendChild(switchShow1000Row);
