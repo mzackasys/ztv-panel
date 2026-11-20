@@ -251,7 +251,7 @@
     const lhuLabel = document.createElement('span');
     lhuLabel.className = 'fw-bold text-dark';
     lhuLabel.style.cssText = 'font-size: 0.75rem; user-select: none; white-space: nowrap;';
-    lhuLabel.innerHTML = '<i class="fa fa-file-text text-success me-1"></i>LHU Manual';
+    lhuLabel.innerHTML = '<i class="fa fa-file text-success me-1"></i>LHU Manual';
 
     // Selalu aktif di semua halaman (tidak ikut aturan tab Prep Analysis)
     const btnLhuManual = document.createElement('button');
