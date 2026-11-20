@@ -15,7 +15,8 @@
     'hide-columns.js',
     'sticky-highlight.js',
     'grouping-salmonella.js',
-    'repeat-counting-spc.js'
+    'repeat-counting-spc.js',
+    'button-approve.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -46,6 +47,25 @@
   let isHidePendinganEnabled = false;
   let isStickyHighlightEnabled = false;
   let isRepeatSpcEnabled = false;
+  let isButtonApproveEnabled = false;
+
+  // Switch Button Approve hanya bisa dipakai di halaman yang punya tabel Result Verification
+  function updateButtonApproveSwitchState() {
+    const switchInput = document.getElementById('switchButtonApprove');
+    if (!switchInput) return;
+    const isAvailable = !!document.getElementById('dataTableResultVerification');
+    if (switchInput.disabled === !isAvailable) return;
+
+    switchInput.disabled = !isAvailable;
+    switchInput.style.cursor = isAvailable ? 'pointer' : 'not-allowed';
+    const row = switchInput.closest('.form-check');
+    if (row) {
+      row.style.opacity = isAvailable ? '1' : '0.55';
+      row.title = isAvailable ? '' : 'Hanya aktif di halaman Result Verification';
+      const label = row.querySelector('label');
+      if (label) label.style.cursor = isAvailable ? 'pointer' : 'not-allowed';
+    }
+  }
 
   function updateBreCalButtonState() {
     const prepTabBtn = document.getElementById('prep-analysis-tab');
@@ -262,6 +282,14 @@
       }
     });
 
+    const switchButtonApproveRow = createSwitchRow('switchButtonApprove', 'Button Approve', isButtonApproveEnabled, (checked) => {
+      isButtonApproveEnabled = checked;
+      if (window.ZTV_MODULES && window.ZTV_MODULES.buttonApprove) {
+        if (isButtonApproveEnabled) window.ZTV_MODULES.buttonApprove.enable();
+        else window.ZTV_MODULES.buttonApprove.disable();
+      }
+    });
+
     const switchHideTSRow = createSwitchRow('switchHideTS', 'Prep : Hide T.S', isHideTSEnabled, (checked) => {
       isHideTSEnabled = checked;
       if (window.ZTV_MODULES && window.ZTV_MODULES.hideColumns) {
@@ -291,6 +319,7 @@
     boxContainer.appendChild(switchShow1000Row);
     boxContainer.appendChild(switchStickyHighlightRow);
     boxContainer.appendChild(switchRepeatSpcRow);
+    boxContainer.appendChild(switchButtonApproveRow);
     boxContainer.appendChild(switchHideTSRow);
     boxContainer.appendChild(switchHidePoolingRow);
     boxContainer.appendChild(switchHidePendinganRow);
@@ -301,6 +330,7 @@
 
     lisaFolderLi.insertAdjacentElement('afterend', zakiFolderLi);
     updateBreCalButtonState();
+    updateButtonApproveSwitchState();
   }
 
   document.addEventListener('shown.bs.tab', () => {
@@ -310,6 +340,7 @@
   setInterval(() => {
     injectZTVPanel();
     updateBreCalButtonState();
+    updateButtonApproveSwitchState();
 
     if (window.ZTV_MODULES) {
       if (isResetEnabled && window.ZTV_MODULES.resetDilution) {
@@ -324,12 +355,16 @@
       if (isStickyHighlightEnabled && window.ZTV_MODULES.stickyHighlight) {
         window.ZTV_MODULES.stickyHighlight.enable();
       }
+      if (isButtonApproveEnabled && window.ZTV_MODULES.buttonApprove) {
+        window.ZTV_MODULES.buttonApprove.enable();
+      }
     }
   }, 500);
 
   const observer = new MutationObserver(() => {
     injectZTVPanel();
     updateBreCalButtonState();
+    updateButtonApproveSwitchState();
   });
 
   if (document.body) {
