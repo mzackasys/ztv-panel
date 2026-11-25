@@ -18,7 +18,7 @@
     'repeat-counting-spc.js',
     'button-approve.js',
     'lhu-manual.js',
-    'dillution-assistence.js'
+    'dillution-assistance.js'
   ];
 
 // GANTI fungsi loadExternalModule lama dengan versi fetch text ini:
@@ -72,7 +72,7 @@
   // Tombol Dillution Assistence hanya aktif di tab Input Result; teksnya Show / Hide
   function updateDillutionButtonState() {
     const btn = document.getElementById('btnZtvDillShow');
-    const mod = window.ZTV_MODULES && window.ZTV_MODULES.dillutionAssistence;
+    const mod = window.ZTV_MODULES && window.ZTV_MODULES.dillutionAssistance;
     if (!btn || !mod) return;
 
     const isAvailable = mod.isAvailable();
@@ -282,7 +282,7 @@
     btnDillShow.id = 'btnZtvDillShow';
     btnDillShow.innerText = 'Show';
     btnDillShow.addEventListener('click', () => {
-      const mod = window.ZTV_MODULES && window.ZTV_MODULES.dillutionAssistence;
+      const mod = window.ZTV_MODULES && window.ZTV_MODULES.dillutionAssistance;
       if (!mod) return;
       if (mod.isShown()) mod.hide();
       else mod.show();
@@ -437,8 +437,8 @@
       if (isButtonApproveEnabled && window.ZTV_MODULES.buttonApprove) {
         window.ZTV_MODULES.buttonApprove.enable();
       }
-      if (window.ZTV_MODULES.dillutionAssistence) {
-        window.ZTV_MODULES.dillutionAssistence.refresh();
+      if (window.ZTV_MODULES.dillutionAssistance) {
+        window.ZTV_MODULES.dillutionAssistance.refresh();
       }
     }
   }, 500);
