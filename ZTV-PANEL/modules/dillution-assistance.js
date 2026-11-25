@@ -114,7 +114,8 @@ window.ZTV_MODULES.dillutionAssistance = (() => {
   // ---------- 3. Modal tabel sampel per parameter ----------
   function showParameterModal(parameter) {
     document.getElementById(MODAL_ID)?.remove();
-    const rows = collectRows().filter(r => r.parameter === parameter).sort(compareNoAnalisa);
+    // Hanya tampilkan baris yang dilution-nya masih kosong
+    const rows = collectRows().filter(r => r.parameter === parameter && r.isEmpty).sort(compareNoAnalisa);
     const offPage = rows.filter(r => !r.onCurrentPage).length;
 
     const modalEl = document.createElement('div');
@@ -143,10 +144,14 @@ window.ZTV_MODULES.dillutionAssistance = (() => {
                     <th>Titik</th>
                     <th style="min-width: 200px;">Parameter</th>
                     <th class="text-center" style="width: 120px;">Test Unit</th>
-                    <th style="width: 130px;">
+                    <th class="text-center" style="width: 150px;">
                       <div class="d-flex flex-column align-items-center gap-1">
-                        <input class="form-control ztvApplyInputDilution" type="number" step="any" placeholder="Apply Dilution" style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">
-                        <button type="button" class="btn btn-sm btn-primary ztvBtnApplyInputDilution w-100" style="font-size: 0.75rem; padding: 0.2rem 0.4rem;">Apply All</button>
+                        <span style="font-size: 0.75rem;">Apply All</span>
+                        <div class="btn-group btn-group-sm w-100" role="group">
+                          <button type="button" class="btn btn-primary ztvBtnApplyAllValue" data-value="0" style="font-size: 0.75rem; padding: 0.2rem 0.4rem;">0</button>
+                          <button type="button" class="btn btn-primary ztvBtnApplyAllValue" data-value="10" style="font-size: 0.75rem; padding: 0.2rem 0.4rem;">10</button>
+                          <button type="button" class="btn btn-primary ztvBtnApplyAllValue" data-value="100" style="font-size: 0.75rem; padding: 0.2rem 0.4rem;">100</button>
+                        </div>
                       </div>
                     </th>
                   </tr>
@@ -172,7 +177,7 @@ window.ZTV_MODULES.dillutionAssistance = (() => {
     // Nama parameter tampil sebagai label berwarna di judul
     modalEl.querySelector('.ztv-dill-param').textContent = parameter;
     const summary = modalEl.querySelector('.ztv-dill-summary');
-    summary.textContent = `${rows.length} sampel, ${rows.filter(r => r.isEmpty).length} dilution masih kosong.`;
+    summary.textContent = `${rows.length} sampel dengan dilution masih kosong.`;
     if (offPage) {
       const warn = document.createElement('div');
       warn.className = 'alert alert-warning py-1 px-2 mt-2 mb-0';
@@ -226,12 +231,13 @@ window.ZTV_MODULES.dillutionAssistance = (() => {
     });
     refreshChangedState();
 
-    // Apply All: hanya mengisi textbox di modal (belum ke tabel asli)
-    modalEl.querySelector('.ztvBtnApplyInputDilution').addEventListener('click', () => {
-      const val = modalEl.querySelector('.ztvApplyInputDilution').value.trim();
-      if (val === '') return;
-      modalInputs.forEach(({ inp }) => { inp.value = val; });
-      refreshChangedState();
+    // Apply All (0 / 10 / 100): hanya mengisi textbox di modal (belum ke tabel asli)
+    modalEl.querySelectorAll('.ztvBtnApplyAllValue').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.value;
+        modalInputs.forEach(({ inp }) => { inp.value = val; });
+        refreshChangedState();
+      });
     });
 
     // Apply (footer): pindahkan nilai yang berubah ke textbox asli, lalu tutup modal
